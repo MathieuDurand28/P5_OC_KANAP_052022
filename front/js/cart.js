@@ -1,33 +1,39 @@
-if (localStorage.getItem("cart") !== null) {
-    getCart()
-}
+/**
+ * promesse qui récupére les données du localstorage cart
+ * pour chaque article, l'API est réinterrogée pour récupérer l'image et le prix.
+ * pour chaque article, le total prix et quantité est calculé
+ *
+ */
+let getCart = new Promise(function (resolve,reject) {
+    if (localStorage.getItem("cart") !== null) {
 
-function getCart() {
-    const section = document.getElementById("cart__items")
-    const cart = JSON.parse(localStorage.getItem("cart"))
-    const total_quantity = document.getElementById("totalQuantity")
-    const totalPrice = document.getElementById("totalPrice")
-    let quantity = 0
-    let price = 0
+        const section = document.getElementById("cart__items")
+        const cart = JSON.parse(localStorage.getItem("cart"))
+        const total_quantity = document.getElementById("totalQuantity")
+        const totalPrice = document.getElementById("totalPrice")
+        let quantity = 0
+        let price = 0
+        let iteration = 0
 
-    cart.forEach(item => {
-        fetch("http://localhost:3000/api/products/" + item.id).then(function (response) {
-            response.text().then(function (text) {
-                if (response.status === 200) {
-                    const result = JSON.parse(text)
-                    const article = document.createElement("article")
+        cart.forEach(item => {
+            iteration++
+            fetch("http://localhost:3000/api/products/" + item.id).then(function (response) {
+                response.text().then(function (text) {
+                    if (response.status === 200) {
+                        const result = JSON.parse(text)
+                        const article = document.createElement("article")
 
-                    quantity += item.quantity
-                    price += result.price
-                    total_quantity.textContent = quantity
-                    totalPrice.textContent = price
+                        quantity += item.quantity
+                        price += item.quantity * result.price
+                        total_quantity.textContent = quantity
+                        totalPrice.textContent = price
 
-                    article.className = "cart__item"
-                    article.dataset.id = item.id
-                    article.dataset.color = item.color
-                    section.append(article)
+                        article.className = "cart__item"
+                        article.dataset.id = item.id
+                        article.dataset.color = item.color
+                        section.append(article)
 
-                    article.innerHTML = `
+                        article.innerHTML = `
                         <div class="cart__item__img">\n
                           <img src=${result.imageUrl} alt=${result.altTxt}>\n
                         </div>\n
@@ -47,11 +53,19 @@ function getCart() {
                             </div>\n
                           </div>\n
                         </div>\n`
-                }
+                        resolve(iteration)
+                    } else {
+                        reject("error")
+                    }
+                })
             })
         })
-    })
-}
+    } else {
+        //si le panier est vide, on cache la partie "commander"
+        const order = document.getElementsByClassName("cart__order")[0]
+        order.style.display = "none"
+    }
+})
 
 function getCart_test() {
     const section = document.getElementById("cart__items")
@@ -135,4 +149,24 @@ function getCart_test() {
 
     })
 }
+
+getCart.then((result) => {
+    const delete_button = document.querySelectorAll('p.deleteItem')
+    console.log(result)
+    console.log(delete_button.length)
+    const deleting = () => {
+        console.log("delete: "+this)
+    }
+
+    for (let i = 0; i < delete_button.length; i++) {
+        console.log(delete_button[i])
+        delete_button[i].addEventListener('click', deleting, false);
+
+    }
+
+})
+
+
+
+
 

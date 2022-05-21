@@ -59,13 +59,12 @@ function addToCart(){
     const description = document.getElementById("description")
     let in_cart = false
 
-
-    //controle des champs vides
+    //contrôle des champs vides
     if (color.value === "") {
         alert("Merci de sélectionner une couleur.")
     } else{
-        if (quantity.value === "0"){
-            alert("Merci de sélectionner une quantité.")
+        if (quantity.value === "0" || quantity.value < 0 || isNaN(parseInt(quantity.value))){
+            alert("Merci de sélectionner une quantité valide.")
         } else{
             //récupération de l'article sélectionné
             const new_item = [{
