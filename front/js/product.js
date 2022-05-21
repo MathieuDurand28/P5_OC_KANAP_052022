@@ -38,35 +38,64 @@ add_cart.addEventListener("click", () => {
 })
 
 /**
+ *
  * fonction qui se déclenche au clic sur le bouton ajouter au panier.
  * cette fonction récupére les informations de la page pour les ajouter au localstorage cart (panier)
- * vérification que les champs couleur et quantité sont biens renseignés.
+ * -vérification que les champs couleur et quantité sont biens renseignés.
+ * -vérification si l'article est déjà dans le panier :
+ * --si oui : vérification si la couleur est identique. Si oui ajout à l'article existant.
+ * --Si non : ajout de l'article dans le panier.
+ *
  */
 function addToCart(){
     const quantity = document.getElementById("quantity")
     const color = document.getElementById("colors")
     const name = document.getElementById("title")
     const description = document.getElementById("description")
+    let in_cart = false
 
+
+    //controle des champs vides
     if (color.value === "") {
-        alert("Merci de sélectionner une couleur")
+        alert("Merci de sélectionner une couleur.")
     } else{
         if (quantity.value === "0"){
-            alert("Merci de sélectionner une quantité")
+            alert("Merci de sélectionner une quantité.")
         } else{
+            //récupération de l'article sélectionné
             const new_item = [{
                 "name": name.textContent,
                 "description": description.textContent,
                 "color": color.value,
-                "quantity": quantity.value
+                "quantity": parseInt(quantity.value)
             }]
-
+            //vérification si un panier existe déjà
             if (localStorage.getItem("cart") !== null){
                 const old_cart = JSON.parse(localStorage.getItem("cart"))
-                old_cart.push(new_item)
-                localStorage.removeItem("cart")
-                localStorage.setItem("cart", JSON.stringify(old_cart))
+                //boucle sur le panier existant pour détécter les articles similaires
+                old_cart.forEach(item => {
+                    if (item.name === new_item[0].name){
+                        if (item.color === new_item[0].color){
+                            //si l'article séléctionné est déjà dans la panier avec la meme couleur additionne les
+                            //quantités
+                            item.quantity = item.quantity + new_item[0].quantity
+                            //suppression et recréation du localstorage avec les nouvelles valeurs
+                            localStorage.removeItem("cart")
+                            localStorage.setItem("cart", JSON.stringify(old_cart))
+                            //indication qu'un article similaire a été trouvé
+                            in_cart = true
+                        }
+                    }
+                })
+                //si l'article séléctionné n'est pas déjà dans la panier on l'ajoute.
+                if (!in_cart){
+                    const cart = old_cart.concat(new_item)
+                    //suppression et recréation du localstorage avec les nouvelles valeurs
+                    localStorage.removeItem("cart")
+                    localStorage.setItem("cart", JSON.stringify(cart))
+                }
             } else {
+                //si le panier n'existe pas encore. Création du localstorage avec la valeur saisie.
                 localStorage.setItem("cart", JSON.stringify(new_item))
             }
         }
