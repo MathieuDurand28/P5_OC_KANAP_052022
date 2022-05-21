@@ -1,8 +1,12 @@
-
+/**
+ * récupération des données de l'API contenant tous les articles.
+ */
 fetch("http://localhost:3000/api/products").then(function(response) {
     response.text().then(function(text) {
         if (response.status === 200){
+            //convertion du résultat en tableau JSON
             const products = JSON.parse(text)
+            //boucle sur le tableau pour générer chaque article
             for (let i=0; i<products.length; i++){
                 /**
                  * récupération de la balise contenant les produits
@@ -15,6 +19,7 @@ fetch("http://localhost:3000/api/products").then(function(response) {
                 const h3            = document.createElement('h3')
                 const p             = document.createElement('p')
 
+                //construction des balises avec les résultats de l'API
                 a.href = "./product.html?"+products[i]._id
                 items_html.append(a)
 

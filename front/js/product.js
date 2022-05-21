@@ -1,5 +1,6 @@
+//récupération de l'ID de l'article depuis l'URL
 let id = location.search.substring(1);
-
+//vérification qu'un ID est reçu puis appel à l'API permettant de récupérer un article précis avec l'ID
 if (id !== "" && id !== undefined){
     fetch("http://localhost:3000/api/products/"+id).then(function(response) {
         response.text().then(function(text) {
@@ -11,12 +12,12 @@ if (id !== "" && id !== undefined){
                 const price = document.getElementById("price")
                 const description = document.getElementById("description")
                 const color_select = document.getElementById("colors")
-
+                //remplissage des champs de la page avec les données reçues.
                 title.textContent = item.name
                 price.textContent = item.price
                 main_title.textContent = item.name
                 description.textContent = item.description
-
+                //boucle pour afficher toutes les couleurs disponibles dans les options du select
                 for (let i=0; i < item.colors.length; i++){
                     const option = document.createElement("option")
                     option.textContent = item.colors[i]
@@ -36,6 +37,11 @@ add_cart.addEventListener("click", () => {
 
 })
 
+/**
+ * fonction qui se déclenche au clic sur le bouton ajouter au panier.
+ * cette fonction récupére les informations de la page pour les ajouter au localstorage cart (panier)
+ * vérification que les champs couleur et quantité sont biens renseignés.
+ */
 function addToCart(){
     const quantity = document.getElementById("quantity")
     const color = document.getElementById("colors")
