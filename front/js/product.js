@@ -20,6 +20,7 @@ if (id !== "" && id !== undefined){
                 for (let i=0; i < item.colors.length; i++){
                     const option = document.createElement("option")
                     option.textContent = item.colors[i]
+                    option.value = item.colors[i]
                     color_select.append(option)
                 }
             }
@@ -41,11 +42,29 @@ function addToCart(){
     const name = document.getElementById("title")
     const description = document.getElementById("description")
 
-    localStorage.setItem("cart", JSON.stringify({
-        "name": name.textContent,
-        "description": description.textContent,
-        "color": color.value,
-        "quantity": quantity.value
-    }))
+    if (color.value === "") {
+        alert("Merci de sélectionner une couleur")
+    } else{
+        if (quantity.value === "0"){
+            alert("Merci de sélectionner une quantité")
+        } else{
+            const new_item = [{
+                "name": name.textContent,
+                "description": description.textContent,
+                "color": color.value,
+                "quantity": quantity.value
+            }]
+
+            if (localStorage.getItem("cart") !== null){
+                const old_cart = JSON.parse(localStorage.getItem("cart"))
+                old_cart.push(new_item)
+                localStorage.removeItem("cart")
+                localStorage.setItem("cart", JSON.stringify(old_cart))
+            } else {
+                localStorage.setItem("cart", JSON.stringify(new_item))
+            }
+        }
+    }
+
     console.log(JSON.parse(localStorage.getItem("cart")))
 }
