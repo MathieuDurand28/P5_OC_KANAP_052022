@@ -12,11 +12,16 @@ if (id !== "" && id !== undefined){
                 const price = document.getElementById("price")
                 const description = document.getElementById("description")
                 const color_select = document.getElementById("colors")
+                const item__img = document.getElementsByClassName("item__img")[0]
+                const img = document.createElement("img")
                 //remplissage des champs de la page avec les données reçues.
                 title.textContent = item.name
                 price.textContent = item.price
                 main_title.textContent = item.name
                 description.textContent = item.description
+                img.src = item.imageUrl
+                img.alt = item.altTxt
+                item__img.append(img)
                 //boucle pour afficher toutes les couleurs disponibles dans les options du select
                 for (let i=0; i < item.colors.length; i++){
                     const option = document.createElement("option")
@@ -67,7 +72,8 @@ function addToCart(){
                 "name": name.textContent,
                 "description": description.textContent,
                 "color": color.value,
-                "quantity": parseInt(quantity.value)
+                "quantity": parseInt(quantity.value),
+                "id": id,
             }]
             //vérification si un panier existe déjà
             if (localStorage.getItem("cart") !== null){
@@ -76,7 +82,7 @@ function addToCart(){
                 old_cart.forEach(item => {
                     if (item.name === new_item[0].name){
                         if (item.color === new_item[0].color){
-                            //si l'article séléctionné est déjà dans la panier avec la meme couleur additionne les
+                            //si l'article séléctionné est déjà dans la panier avec la meme couleur, on additionne les
                             //quantités
                             item.quantity = item.quantity + new_item[0].quantity
                             //suppression et recréation du localstorage avec les nouvelles valeurs
