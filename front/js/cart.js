@@ -6,7 +6,6 @@
  */
 let getCart = new Promise(function (resolve,reject) {
     if (localStorage.getItem("cart") !== null) {
-
         const section = document.getElementById("cart__items")
         const cart = JSON.parse(localStorage.getItem("cart"))
         const total_quantity = document.getElementById("totalQuantity")
@@ -150,22 +149,52 @@ function getCart_test() {
     })
 }
 
-getCart.then((result) => {
-    const delete_button = document.querySelectorAll('p.deleteItem')
-    console.log(result)
-    console.log(delete_button.length)
-    const deleting = () => {
-        console.log("delete: "+this)
-    }
+/**
+ * execution du code au retour de la promesse qui permet de surveiller si un "p" supprimé est cliqué
+ * un timeout force a attendre la fin de l'affichage de la page.
+ *
+ */
+getCart.then(() => {
+    setTimeout(() => {
+        //selection de tous les balises ayant une class deleteItem
+        const delete_button = document.querySelectorAll('.deleteItem')
 
-    for (let i = 0; i < delete_button.length; i++) {
-        console.log(delete_button[i])
-        delete_button[i].addEventListener('click', deleting, false);
+        const deleting = () => {
+            const button = this.event.target
+            //on remonte jusqu'au 4eme parent qui contient les informations ID et COLOR
+            const id = button.parentNode.parentNode.parentNode.parentNode
+            removeItem(id.dataset.id,id.dataset.color)
+        }
 
-    }
+        //pour chaque class, surveillance de l'event click
+        for (let i = 0; i < delete_button.length; i++) {
+            delete_button[i].addEventListener('click', deleting, false);
 
+        }
+    }, 300)
 })
 
+/**
+ * fonction qui prend en paramétres:
+ * @param id
+ * @param color
+ * Cette fonction permet de trouver l'article voulant être supprimé et le retire du localstorage
+ * rechargement de page à la fin pour actualiser le panier.
+ */
+function removeItem(id,color){
+    if (localStorage.getItem("cart") !== null) {
+        const items = JSON.parse(localStorage.getItem("cart"))
+        items.forEach(item => {
+            if (id === item.id && color === item.color ){
+                const item_id = items.indexOf(item)
+                items.splice(item_id,1)
+                localStorage.clear()
+                localStorage.setItem("cart",JSON.stringify(items))
+                location.reload()
+            }
+        })
+    }
+}
 
 
 

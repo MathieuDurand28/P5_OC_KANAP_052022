@@ -105,6 +105,4 @@ function addToCart(){
             }
         }
     }
-
-    console.log(JSON.parse(localStorage.getItem("cart")))
 }
