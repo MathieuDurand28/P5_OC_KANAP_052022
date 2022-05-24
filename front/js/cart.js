@@ -6,6 +6,7 @@
  */
 let getCart = new Promise(function (resolve,reject) {
     if (localStorage.getItem("cart") !== null) {
+        console.log(JSON.parse(localStorage.getItem("cart")))
         const section = document.getElementById("cart__items")
         const cart = JSON.parse(localStorage.getItem("cart"))
         const total_quantity = document.getElementById("totalQuantity")
@@ -158,19 +159,31 @@ getCart.then(() => {
     setTimeout(() => {
         //selection de tous les balises ayant une class deleteItem
         const delete_button = document.querySelectorAll('.deleteItem')
+        const quantity_selector = document.querySelectorAll('.itemQuantity')
 
-        const deleting = () => {
+        const delete_item = () => {
             const button = this.event.target
             //on remonte jusqu'au 4eme parent qui contient les informations ID et COLOR
             const id = button.parentNode.parentNode.parentNode.parentNode
             removeItem(id.dataset.id,id.dataset.color)
         }
+        const quantity_item = () => {
+            const input = this.event.target
+            //on remonte jusqu'au 4eme parent qui contient les informations ID et COLOR et QUANTITE
+            const id = input.parentNode.parentNode.parentNode.parentNode
+            const quantity = this.event.target.value
+            quantityChange(id.dataset.id,id.dataset.color,quantity)
+        }
 
         //pour chaque class, surveillance de l'event click
         for (let i = 0; i < delete_button.length; i++) {
-            delete_button[i].addEventListener('click', deleting, false);
-
+            delete_button[i].addEventListener('click', delete_item, false);
         }
+        //pour chaque class, surveillance de l'event change
+        for (let i = 0; i < quantity_selector.length; i++) {
+            quantity_selector[i].addEventListener('change', quantity_item, false);
+        }
+
     }, 300)
 })
 
@@ -188,6 +201,29 @@ function removeItem(id,color){
             if (id === item.id && color === item.color ){
                 const item_id = items.indexOf(item)
                 items.splice(item_id,1)
+                localStorage.clear()
+                localStorage.setItem("cart",JSON.stringify(items))
+                location.reload()
+            }
+        })
+    }
+}
+
+/**
+ * fonction qui prend en paramétres:
+ * @param id
+ * @param color
+ * @param quantity
+ * cette fonction permet de mettre à jour les quantités des articles.
+ * au changement de l'input, le localstorage est mis à jour
+ * rechargement de la page pour actualiser les totaux en bas de page.
+ */
+function quantityChange(id,color,quantity){
+    if (localStorage.getItem("cart") !== null) {
+        const items = JSON.parse(localStorage.getItem("cart"))
+        items.forEach(item => {
+            if (id === item.id && color === item.color ){
+                item.quantity = parseInt(quantity)
                 localStorage.clear()
                 localStorage.setItem("cart",JSON.stringify(items))
                 location.reload()
