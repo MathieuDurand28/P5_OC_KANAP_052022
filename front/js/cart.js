@@ -6,27 +6,16 @@
  */
 let getCart = new Promise(function (resolve,reject) {
     if (localStorage.getItem("cart") !== null) {
-        console.log(JSON.parse(localStorage.getItem("cart")))
+
         const section = document.getElementById("cart__items")
         const cart = JSON.parse(localStorage.getItem("cart"))
-        const total_quantity = document.getElementById("totalQuantity")
-        const totalPrice = document.getElementById("totalPrice")
-        let quantity = 0
-        let price = 0
-        let iteration = 0
 
         cart.forEach(item => {
-            iteration++
             fetch("http://localhost:3000/api/products/" + item.id).then(function (response) {
                 response.text().then(function (text) {
                     if (response.status === 200) {
                         const result = JSON.parse(text)
                         const article = document.createElement("article")
-
-                        quantity += item.quantity
-                        price += item.quantity * result.price
-                        total_quantity.textContent = quantity
-                        totalPrice.textContent = price
 
                         article.className = "cart__item"
                         article.dataset.id = item.id
@@ -53,7 +42,7 @@ let getCart = new Promise(function (resolve,reject) {
                             </div>\n
                           </div>\n
                         </div>\n`
-                        resolve(iteration)
+                        resolve("good")
                     } else {
                         reject("error")
                     }
@@ -65,6 +54,7 @@ let getCart = new Promise(function (resolve,reject) {
         const order = document.getElementsByClassName("cart__order")[0]
         order.style.display = "none"
     }
+    amountCalculator()
 })
 
 function getCart_test() {
@@ -188,6 +178,32 @@ getCart.then(() => {
 })
 
 /**
+ * fonction qui calcul les totaux du panier.
+ * À chaque changement de quantité, cette fonction est rappelée.
+ */
+function amountCalculator(){
+    if (localStorage.getItem("cart") !== null) {
+        const cart = JSON.parse(localStorage.getItem("cart"))
+        const total_quantity = document.getElementById("totalQuantity")
+        const totalPrice = document.getElementById("totalPrice")
+        let quantity = 0
+        let price = 0
+
+        cart.forEach(item => {
+            fetch("http://localhost:3000/api/products/" + item.id).then(function (response) {
+                response.text().then(function (text) {
+                    const result = JSON.parse(text)
+                    quantity += item.quantity
+                    price += item.quantity * result.price
+                    total_quantity.textContent = quantity
+                    totalPrice.textContent = price
+                })
+            })
+        })
+    }
+}
+
+/**
  * fonction qui prend en paramétres:
  * @param id
  * @param color
@@ -216,7 +232,7 @@ function removeItem(id,color){
  * @param quantity
  * cette fonction permet de mettre à jour les quantités des articles.
  * au changement de l'input, le localstorage est mis à jour
- * rechargement de la page pour actualiser les totaux en bas de page.
+ * appel de la fonction amountCalculator pour actualiser les totaux en bas de page.
  */
 function quantityChange(id,color,quantity){
     if (localStorage.getItem("cart") !== null) {
@@ -226,7 +242,7 @@ function quantityChange(id,color,quantity){
                 item.quantity = parseInt(quantity)
                 localStorage.clear()
                 localStorage.setItem("cart",JSON.stringify(items))
-                location.reload()
+                amountCalculator()
             }
         })
     }
