@@ -1,16 +1,17 @@
 /**
- * promesse qui récupére les données du localstorage cart
+ * fonction qui récupère les données du localstorage cart (panier)
  * pour chaque article, l'API est réinterrogée pour récupérer l'image et le prix.
  * pour chaque article, le total prix et quantité est calculé
- *
  */
-const getCart = async () => {
+async function getCart() {
+    //contrôle si un panier est déjà existant
     if (localStorage.getItem("cart") !== null) {
 
         const section = document.getElementById("cart__items")
         const cart = JSON.parse(localStorage.getItem("cart"))
-
+        //boucle sur les éléments du panier.
         await cart.forEach(item => {
+            //appel à l'API pour récupérer les images et les prix.
             fetch("http://localhost:3000/api/products/" + item.id).then(function (response) {
                 response.text().then(function (text) {
                     if (response.status === 200) {
@@ -53,7 +54,7 @@ const getCart = async () => {
                     }
                     const quantity_item = () => {
                         const input = this.event.target
-                        //on remonte jusqu'au 4eme parent qui contient les informations ID et COLOR et QUANTITE
+                        //on remonte jusqu'au 4eme parent qui contient les informations ID et COLOR et QUANTITY
                         const id = input.parentNode.parentNode.parentNode.parentNode
                         const quantity = this.event.target.value
                         quantityChange(id.dataset.id, id.dataset.color, quantity)
@@ -78,7 +79,6 @@ const getCart = async () => {
     }
     amountCalculator()
 }
-
 
 /**
  * fonction qui calcul les totaux du panier.
@@ -107,7 +107,7 @@ function amountCalculator() {
 }
 
 /**
- * fonction qui prend en paramétres:
+ * fonction qui prend en paramétres :
  * @param id
  * @param color
  * Cette fonction permet de trouver l'article voulant être supprimé et le retire du localstorage
@@ -129,7 +129,7 @@ function removeItem(id, color) {
 }
 
 /**
- * fonction qui prend en paramétres:
+ * fonction qui prend en paramétres :
  * @param id
  * @param color
  * @param quantity
@@ -151,59 +151,11 @@ function quantityChange(id, color, quantity) {
     }
 }
 
-
-const button_order = document.getElementById("order")
-
-button_order.addEventListener("click", (event) => {
-    event.preventDefault()
-    const valid_datas = checking_fields()
-
-    if (valid_datas.valid) {
-        let product_ID = [];
-
-
-        if (localStorage.getItem("cart") !== null || localStorage.getItem("cart").length === 0) {
-            const itemsList = JSON.parse(localStorage.getItem("cart"))
-            itemsList.forEach(item => {
-                product_ID.push(item.id)
-            })
-        } else {
-            alert("votre panier est vide")
-        }
-
-        let dataReceived = "";
-
-        const contact = {
-            "firstName": valid_datas.data["firstName"],
-            "lastName": valid_datas.data["lastName"],
-            "address": valid_datas.data["address"],
-            "city": valid_datas.data["city"],
-            "email": valid_datas.data["email"]
-        }
-
-        const dataToSend = JSON.stringify({
-            "contact": contact,
-            "products": product_ID
-        });
-
-        fetch("http://localhost:3000/api/products/order", {
-            method: 'POST',
-            headers: {
-                accept: "application/json",
-                "content-type": "application/json",
-            },
-            mode: "cors",
-            body: dataToSend
-        })
-            .then(resp => resp.json())
-            .then(data => {
-                document.location.href = "http://localhost:63342/P5_Mathieu_Durand_Kanap/front/html/confirmation.html?"
-                    + data.orderId;
-            })
-    }
-
-})
-
+/**
+ * Fonction de contrôle des champs du formulaire à l'aide de regex.
+ * Si les champs sont tous biens remplis et conformes, la fonction renvoi un tableau de données.
+ * @returns {{valid: boolean}|{valid: boolean, data: {firstName: FormDataEntryValue, lastName: FormDataEntryValue, address: FormDataEntryValue, city: FormDataEntryValue, email: FormDataEntryValue}}}
+ */
 const checking_fields = () => {
 
     const Formulaire = document.getElementsByClassName('cart__order__form')[0];
@@ -257,14 +209,76 @@ const checking_fields = () => {
         ? {"valid": false}
         : {
             "valid": true, "data": {
-                "firstName" : formData.get("firstName"),
-                "lastName"  : formData.get("lastName"),
-                "address"   : formData.get("address"),
-                "city"      : formData.get("city"),
-                "email"     : formData.get("email")
+                "firstName": formData.get("firstName"),
+                "lastName": formData.get("lastName"),
+                "address": formData.get("address"),
+                "city": formData.get("city"),
+                "email": formData.get("email")
             }
         }
 }
 
-getCart()
+/**
+ * Code s'exécutant après la fin du traitement getCart.
+ * cette partie surveille l'événement clic sur le bouton "commander" en bas de page.
+ * Un appel à la fonction checking_fields permet de confirmer que les champs sont conformes.
+ * Une fois vérifié par le retour positif de la fonction, appel de l'API de commande
+ * avec les données panier + données utilisateurs saisies dans le formulaire.
+ */
+getCart().then(r => {
+    const button_order = document.getElementById("order")
+
+    button_order.addEventListener("click", (event) => {
+        event.preventDefault()
+        const valid_datas = checking_fields()
+
+        if (valid_datas.valid) {
+            let product_ID = [];
+
+            if (localStorage.getItem("cart") !== null || localStorage.getItem("cart").length === 0) {
+                const itemsList = JSON.parse(localStorage.getItem("cart"))
+                itemsList.forEach(item => {
+                    product_ID.push(item.id)
+                })
+            } else {
+                alert("votre panier est vide")
+            }
+
+            let dataReceived = "";
+
+            const contact = {
+                "firstName": valid_datas.data["firstName"],
+                "lastName": valid_datas.data["lastName"],
+                "address": valid_datas.data["address"],
+                "city": valid_datas.data["city"],
+                "email": valid_datas.data["email"]
+            }
+            alert(contact)
+            const dataToSend = JSON.stringify({
+                "contact": contact,
+                "products": product_ID
+            });
+
+            fetch("http://localhost:3000/api/products/order", {
+                method: 'POST',
+                headers: {
+                    accept: "application/json",
+                    "content-type": "application/json",
+                },
+                mode: "cors",
+                body: dataToSend
+            })
+                .then(resp => resp.json())
+                .then(data => {
+                    document.location.href = "./confirmation.html?"
+                        + data.orderId;
+                })
+        }
+
+    })
+
+})
+
+
+
 

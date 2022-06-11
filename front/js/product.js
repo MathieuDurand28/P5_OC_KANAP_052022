@@ -1,5 +1,6 @@
 //récupération de l'ID de l'article depuis l'URL
 let id = location.search.substring(1);
+
 //vérification qu'un ID est reçu puis appel à l'API permettant de récupérer un article précis avec l'ID
 if (id !== "" && id !== undefined){
     fetch("http://localhost:3000/api/products/"+id).then(function(response) {
@@ -36,7 +37,7 @@ if (id !== "" && id !== undefined){
 
 
 const add_cart = document.getElementById("addToCart")
-
+// captation de l'événement clic sur le bouton d'ajout au panier.
 add_cart.addEventListener("click", () => {
    addToCart()
 
@@ -45,8 +46,8 @@ add_cart.addEventListener("click", () => {
 /**
  *
  * fonction qui se déclenche au clic sur le bouton ajouter au panier.
- * cette fonction récupére les informations de la page pour les ajouter au localstorage cart (panier)
- * -vérification que les champs couleur et quantité sont biens renseignés.
+ * cette fonction récupère les informations de la page pour les ajouter au localstorage cart (panier)
+ * -vérification que les champs couleur et quantité sont bien renseignés.
  * -vérification si l'article est déjà dans le panier :
  * --si oui : vérification si la couleur est identique. Si oui ajout à l'article existant.
  * --Si non : ajout de l'article dans le panier.
@@ -81,7 +82,7 @@ function addToCart(){
                 old_cart.forEach(item => {
                     if (item.name === new_item[0].name){
                         if (item.color === new_item[0].color){
-                            //si l'article séléctionné est déjà dans la panier avec la meme couleur, on additionne les
+                            //si l'article sélectionné est déjà dans le panier avec la meme couleur, on additionne les
                             //quantités
                             item.quantity = item.quantity + new_item[0].quantity
                             //suppression et recréation du localstorage avec les nouvelles valeurs
@@ -92,7 +93,7 @@ function addToCart(){
                         }
                     }
                 })
-                //si l'article séléctionné n'est pas déjà dans la panier on l'ajoute.
+                //si l'article sélectionné n'est pas déjà dans le panier, on l'ajoute.
                 if (!in_cart){
                     const cart = old_cart.concat(new_item)
                     //suppression et recréation du localstorage avec les nouvelles valeurs
@@ -100,7 +101,7 @@ function addToCart(){
                     localStorage.setItem("cart", JSON.stringify(cart))
                 }
             } else {
-                //si le panier n'existe pas encore. Création du localstorage avec la valeur saisie.
+                //Si le panier n'existe pas encore. Création du localstorage avec la valeur saisie.
                 localStorage.setItem("cart", JSON.stringify(new_item))
             }
         }
