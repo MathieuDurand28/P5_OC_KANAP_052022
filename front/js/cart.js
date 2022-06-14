@@ -57,7 +57,7 @@ async function getCart() {
                         //on remonte jusqu'au 4eme parent qui contient les informations ID et COLOR et QUANTITY
                         const id = input.parentNode.parentNode.parentNode.parentNode
                         const quantity = this.event.target.value
-                        quantityChange(id.dataset.id, id.dataset.color, quantity,input)
+                        quantityChange(id.dataset.id, id.dataset.color, quantity, input)
                     }
 
 
@@ -138,16 +138,24 @@ function removeItem(id, color) {
  * appel de la fonction amountCalculator pour actualiser les totaux en bas de page.
  * @param input
  */
-function quantityChange(id, color, quantity,input) {
+function quantityChange(id, color, quantity, input) {
     if (localStorage.getItem("cart") !== null) {
         const items = JSON.parse(localStorage.getItem("cart"))
         items.forEach(item => {
             if (id === item.id && color === item.color) {
-                if (quantity=== "0" || quantity < 0 || isNaN(parseInt(quantity))){
+                //contrôle que la quantité est valide
+                if (quantity === "0" || quantity < 0 || isNaN(parseInt(quantity))) {
                     input.value = item.quantity
-                  alert("la quantité saisie n'est pas valide.")
+                    alert("la quantité saisie n'est pas valide. Elle doit être contenue entre 1 et 100")
                 } else {
-                    item.quantity = parseInt(quantity)
+                    //contrôle que la quantité par article ne dépasse pas 100
+                    if (quantity > 100 || item.quantity > 100) {
+                        alert("La quantité maximale par article est de 100")
+                        input.value = 100
+                        item.quantity = 100
+                    } else {
+                        item.quantity = parseInt(quantity)
+                    }
                     localStorage.clear()
                     localStorage.setItem("cart", JSON.stringify(items))
                     amountCalculator()
