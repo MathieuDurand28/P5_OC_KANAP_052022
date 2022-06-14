@@ -57,7 +57,7 @@ async function getCart() {
                         //on remonte jusqu'au 4eme parent qui contient les informations ID et COLOR et QUANTITY
                         const id = input.parentNode.parentNode.parentNode.parentNode
                         const quantity = this.event.target.value
-                        quantityChange(id.dataset.id, id.dataset.color, quantity)
+                        quantityChange(id.dataset.id, id.dataset.color, quantity,input)
                     }
 
 
@@ -136,16 +136,22 @@ function removeItem(id, color) {
  * cette fonction permet de mettre à jour les quantités des articles.
  * au changement de l'input, le localstorage est mis à jour
  * appel de la fonction amountCalculator pour actualiser les totaux en bas de page.
+ * @param input
  */
-function quantityChange(id, color, quantity) {
+function quantityChange(id, color, quantity,input) {
     if (localStorage.getItem("cart") !== null) {
         const items = JSON.parse(localStorage.getItem("cart"))
         items.forEach(item => {
             if (id === item.id && color === item.color) {
-                item.quantity = parseInt(quantity)
-                localStorage.clear()
-                localStorage.setItem("cart", JSON.stringify(items))
-                amountCalculator()
+                if (quantity=== "0" || quantity < 0 || isNaN(parseInt(quantity))){
+                    input.value = item.quantity
+                  alert("la quantité saisie n'est pas valide.")
+                } else {
+                    item.quantity = parseInt(quantity)
+                    localStorage.clear()
+                    localStorage.setItem("cart", JSON.stringify(items))
+                    amountCalculator()
+                }
             }
         })
     }

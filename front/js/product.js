@@ -104,6 +104,10 @@ function addToCart(){
                 //Si le panier n'existe pas encore. Création du localstorage avec la valeur saisie.
                 localStorage.setItem("cart", JSON.stringify(new_item))
             }
+            const choose = confirm("Article ajouté ! , souhaitez-vous aller au panier ? ")
+            if (choose){
+                document.location.href = ("./cart.html")
+            }
         }
     }
 }
